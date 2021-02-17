@@ -13,6 +13,56 @@ Only Terraform 0.12 is supported.
 
 ## Usage
 
+### S3-CloudFront with a certificate use case
+```hcl
+provider "aws" {
+  region = "us-east-1"
+}
+
+locals {
+  origin_domain_name = "example-bucket" // bucket name
+  certificate_arn    = "arn"
+  cnames             = ["cdn.example.com"]
+  tags = {
+    Environment = "dev"
+  }
+}
+
+module "cdn" {
+  source = "git::https://github.com/chaosgears-terraform-modules/terraform-aws-cloudfront.git"
+
+  aliases = local.cnames
+  enabled             = true
+  is_ipv6_enabled     = true
+  retain_on_delete    = false
+  wait_for_deployment = false
+  price_class         = "PriceClass_All"
+  tags                = local.tags
+
+  origin = {
+    "S3-${local.origin_domain_name}" = {
+      domain_name = "${local.origin_domain_name}.s3.amazonaws.com"
+    }
+  }
+
+  default_cache_behavior = {
+    target_origin_id       = "S3-${local.origin_domain_name}"
+    viewer_protocol_policy = "redirect-to-https"
+
+    allowed_methods = ["GET", "HEAD"]
+    cached_methods  = ["GET", "HEAD"]
+    compress        = true
+    query_string    = true
+  }
+
+  viewer_certificate = {
+    acm_certificate_arn = local.certificate_arn
+    ssl_support_method  = "sni-only"
+    minimum_protocol_version = "TLSv1.1_2016"
+  }
+}
+```
+
 ### CloudFront distribution with versioning enabled
 
 ```hcl
