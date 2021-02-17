@@ -108,6 +108,7 @@ resource "aws_cloudfront_distribution" "this" {
       min_ttl     = lookup(i.value, "min_ttl", null)
       default_ttl = lookup(i.value, "default_ttl", null)
       max_ttl     = lookup(i.value, "max_ttl", null)
+      cache_policy_id = var.cache_policy_id
 
       forwarded_values {
         query_string            = lookup(i.value, "query_string", false)

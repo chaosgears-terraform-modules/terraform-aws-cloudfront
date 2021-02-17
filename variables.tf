@@ -1,3 +1,10 @@
+variable "cache_policy_id" {
+  description = "Cache and origin request settings, Managed-CachingOptimized"
+  type = string
+  default = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+}
+
+
 variable "create_distribution" {
   description = "Controls if CloudFront distribution should be created"
   type        = bool
